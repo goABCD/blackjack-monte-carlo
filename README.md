@@ -1,42 +1,57 @@
-# Blackjack Experiment: Exact Hit/Stand + Monte Carlo
+# Blackjack Monte Carlo · Math IA Lab
 
-Macau-style blackjack experiment under a **locked** rule set:
+Macau-style blackjack under a **locked** rule set (CSM / infinite-deck, S17, hard hit/stand 12–16): exact recursion + Monte Carlo + interactive lab.
 
-- continuous shuffle / infinite-deck draw probabilities (fixed \(4/52\), \(16/52\) for tens)
-- dealer **stands on soft 17 (S17)**
-- no-hole-card timing for the player decision model
-- player actions studied: **hit vs stand** on **hard totals 12–16**
+---
 
-The repo pairs an **exact conditional-probability recursion** with a **Monte Carlo** check.
+## Quick start (Windows)
+
+1. Download / unzip this repo  
+2. Double-click **`start_lab.bat`**  
+3. Browser opens **http://localhost:8501**
+
+Or in a terminal:
+
+```bat
+cd blackjack-monte-carlo
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run app\streamlit_app.py
+```
+
+> Do **not** open `.py` with “Python default”. This is a Streamlit web app.
+
+### Lab tabs
+
+| Tab | What it does |
+|---|---|
+| Practice | Deal / Hit / Stand table + IA tip |
+| Custom strategy | Edit hard 12–16 H/S matrix |
+| Batch Monte Carlo | Up to 1e6 hands; bust curve, EV bars, ΔE heatmap |
+| Exact model | Dealer terminal table + decision grid |
+
+---
 
 ## Question
 
 How does the dealer’s bust probability depend on the upcard, and when should a player hit or stand on hard 12–16?
 
+## Folder map
 
-## Math IA Lab (Streamlit panel)
+| Path | Role |
+|---|---|
+| `app/streamlit_app.py` | Interactive Math IA panel |
+| `src/exact.py` | Exact dealer dist + optimal hit/stand |
+| `src/monte_carlo.py` | Monte Carlo validation CLI |
+| `src/plot_results.py` | Save static figures |
+| `data/` | CSV outputs |
+| `figures/` | Pre-rendered charts |
+| `start_lab.bat` | One-click Windows launcher |
 
-Interactive lab styled for exploration write-ups (practice table + editable hard 12–16 strategy + large-N Monte Carlo + IA graphs):
-
-```bash
-pip install -r requirements.txt
-streamlit run app/streamlit_app.py
-```
-
-Tabs:
-
-1. **Practice hands** — hit/stand table with bankroll stats and “IA suggestion” from the exact model  
-2. **Custom stand strategy** — edit the H/S matrix (or force all-H / all-S)  
-3. **Batch Monte Carlo** — up to 1e6 hands; compares optimal vs custom vs threshold rule; bust curve + EV bars + ΔE heatmap  
-4. **Exact model** — dealer terminal table and decision grid
-
-The UI labels this as a **Math IA tool** under the locked Macau-style rule set.
-
-## Run
+## CLI (optional)
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cd src
 python exact.py
@@ -44,32 +59,23 @@ python plot_results.py
 python monte_carlo.py --n-dealer 200000 --n-ev 80000
 ```
 
-## Outputs
-
-| Path | Content |
-|---|---|
-| `figures/dealer_bust.png` | Exact dealer bust % by upcard |
-| `figures/delta_E_heatmap.png` | ΔE = E(hit)−E(stand) heatmap |
-| `data/mc_dealer_bust.csv` | Exact vs MC bust rates |
-| `data/mc_ev_focus.csv` | Focus cells with MC EV |
-
 ## Method (short)
 
-1. **Dealer chain**: state `(total_low, has_ace)` until stand (≥17) or bust; infinite-deck transitions.
-2. **Stand EV** on hard ≤16 collapses to \(2B_u - 1\) (win only if dealer busts).
-3. **Hit EV**: one card, then continue optimally (hard totals).
-4. **Monte Carlo**: resample the same probabilities; compare bust rates and a few boundary cells.
+1. **Dealer chain**: state `(total_low, has_ace)` until stand (≥17) or bust.  
+2. **Stand EV** on hard ≤16 collapses to `2B_u − 1`.  
+3. **Hit EV**: draw one card, then continue optimally (hard totals).  
+4. **Monte Carlo**: resample the same probabilities; compare bust rates and strategy EV.
 
 ## Snapshot results (exact)
 
-Dealer bust rises from about **11.5%** (upcard A) to about **42.3%** (upcard 6), then falls toward ten-value upcards. Hard 12–16 therefore tends to **stand vs weak upcards 2–6** and **hit vs strong upcards 7–A**, with a few near-zero ΔE boundary cells (e.g. 12 vs 4, 16 vs 10) that MC is meant to stress-test.
+Dealer bust rises from about **11.5%** (upcard A) to about **42.3%** (upcard 6). Hard 12–16 tends to **stand vs 2–6** and **hit vs 7–A**, with near-zero ΔE boundary cells (e.g. 12 vs 4, 16 vs 10).
 
 ## Limitations
 
-- Soft totals, doubles, splits, and surrender are out of scope.
-- Infinite-deck / CSM is a within-shoe approximation of continuous shuffle.
-- Natural blackjack edge cases follow the ENHC-style treatment coded in `exact.py`.
+- Soft totals, doubles, splits, surrender out of scope.  
+- Infinite-deck / CSM approximates continuous shuffle.  
+- Lab payout is 1:1 (no 3:2 blackjack).
 
 ## Stack
 
-Python · NumPy · Matplotlib
+Python · NumPy · Matplotlib · Pandas · Streamlit
