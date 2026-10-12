@@ -13,6 +13,25 @@ The repo pairs an **exact conditional-probability recursion** with a **Monte Car
 
 How does the dealer’s bust probability depend on the upcard, and when should a player hit or stand on hard 12–16?
 
+
+## Math IA Lab (Streamlit panel)
+
+Interactive lab styled for exploration write-ups (practice table + editable hard 12–16 strategy + large-N Monte Carlo + IA graphs):
+
+```bash
+pip install -r requirements.txt
+streamlit run app/streamlit_app.py
+```
+
+Tabs:
+
+1. **Practice hands** — hit/stand table with bankroll stats and “IA suggestion” from the exact model  
+2. **Custom stand strategy** — edit the H/S matrix (or force all-H / all-S)  
+3. **Batch Monte Carlo** — up to 1e6 hands; compares optimal vs custom vs threshold rule; bust curve + EV bars + ΔE heatmap  
+4. **Exact model** — dealer terminal table and decision grid
+
+The UI labels this as a **Math IA tool** under the locked Macau-style rule set.
+
 ## Run
 
 ```bash
